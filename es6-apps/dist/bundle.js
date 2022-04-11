@@ -1,0 +1,1 @@
+(()=>{"use strict";console.log("Subramanian Murugan","Coimbatore",!0,10,"Hello");let o=new class{constructor(){console.log("Product Service")}findAll(){return"product"}};console.log(o.findAll())})();

@@ -1,0 +1,199 @@
+
+Software :
+
+1.node js
+2.vs code.
+
+..............................................................................................
+                                            ES 6 features
+
+ES - 1, 3, 4, 5,6,7,8....				  
+
+ECMA 6  - javascript version
+
+variables 
+let , const  - var
+
+functions:
+1.lambda functions/arrow
+
+objects
+-class
+-spread operator
+-rest operator
+-destructuring
+
+Async Patterns
+1.Promise
+2.async await
+
+
+
+//variables and literals
+
+var-es5
+let and const -es6 to replace var.
+
+this - for object variables
+
+literals - values: based on literal only the type of variable is decided during runtime.
+
+
+types of literals
+
+1.string
+2.number
+3.boolean
+4.undefined
+5.nan
+6.infinity
+7.null
+8.function
+9.object
+
+
+types ;
+
+1.string
+2.number - number,infinity,NaN
+3.boolean
+4.undefined
+5.function
+6.object - null, object
+
+
+What can be true or false?
+
+decision making : if..else ,tenary operator
+
+in javascript is every thing is true execept the following values 
+
+Falsy values
+
+ * 
+ *  1.boolean false
+ *  2.Empty string "" ,''
+ *  3.0
+ *  4.undefined
+ *  5.NaN
+ *  6.null
+ */
+............
+
+modularity:
+
+
+In java Modularity , is presented via "Packages"
+
+Package organize the code  logically.
+
+Customer.java
+
+package com.ibm.cms
+
+public class Customer{}
+
+Java organizes code folders and files Physically.
+
+d:/javaapps/src/
+    com/ibm/cms/Customer.java
+
+
+What about javascript Modularity?
+
+ Javascript is file based modularity physically
+ but logically there is no such modularity at language level.
+
+ collection of variable declarations and function.
+
+Once js started growing in large scale, dev struck to organize code.
+
+2000, Smart developers started thinking about how to modualrize js code.
+ 
+
+Module design patterns came.
+
+1.Namespace design pattern : 2000 : jquery
+2.AMD -Async Module Defintion : dojo
+---------------------------------------------------------
+3.CJS - Common JS =  namespace + amd
+4.ES 6 Module design pattern  = amd + cjs
+------------------------------------------------------------
+5.System = AMD = CJS + ES 6
+6.UMD = NAMESPACE + AMD + CJS = ES 6
+...........................................................................................
+
+
+ES 6 Modules:
+
+How to share code?
+  export , export default
+How to link files
+ import
+
+export key word is used to pack the code to be shared.
+
+1.webpack
+
+How to install webpack in our project?
+
+Steps:
+
+1.make sure that you have package.json file
+ if not , create package.json file
+
+npm init
+
+2.install webpack
+  npm install webpack webpack-cli --save-dev
+
+3.add webpack.config.js in the project root dir
+
+const path = require('path');
+
+module.exports = {
+  entry: './src/index.js',
+  mode:'development',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js',
+  },
+};
+
+4.build /bundle your code
+ open package.json
+ add entry into scripts
+
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  }
+
+5.start bundling
+  open cmd and run the following command
+npm run build
+
+> es6-apps@1.0.0 build
+> webpack
+
+asset bundle.js 5.19 KiB [emitted] (name: main)
+runtime modules 670 bytes 3 modules
+cacheable modules 758 bytes
+  ./src/index.js 146 bytes [built] [code generated]
+  ./src/mylib.js 612 bytes [built] [code generated]
+webpack 5.70.0 compiled successfully in 113 ms
+
+6.add bundle file inside index.html
+     <script src="dist/bundle.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
