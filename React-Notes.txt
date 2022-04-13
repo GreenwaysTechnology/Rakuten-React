@@ -2007,3 +2007,257 @@ const App = props => <div>
 </div>
 
 ReactDOM.render(<App />, document.getElementById('root'))
+.............................................................................................
+					Fragments
+............................................................................................
+
+React Basic Jsx Rules:
+
+1.We must have root element.
+  
+invalid code
+<p>Hello</p>
+<h1>Hai</h1>
+
+JSX Rule:
+
+1.YOu must wrapp sibblings inside container elements
+
+Valid
+ <div>
+   <h1>
+   <p>
+   <img>
+   <Trader/>
+ </div>
+
+Invalid:
+   <h1>
+   <p>
+   <img>
+   <Trader/>
+............
+What is Fragment?
+
+A  common pattern in React is for a component return multiple elements.
+
+
+function Greeter (){
+   return <h1></h1><p></p>
+}
+
+Here , the code throws error , the reason being , we cant have elements without root element.
+
+This rule some times, makes ui layout complex. sometime which may make difficult to adjust the ui layouts.
+
+
+// import React, { Fragment} from 'react';
+import React from 'react';
+
+import ReactDOM from 'react-dom'
+
+// const Greeter = () => <React.Fragment>
+//     <h1>Hello</h1>
+//     <p>How are you?</p>
+// </React.Fragment>
+
+// const Greeter = () => <Fragment>
+//     <h1>Hello</h1>
+//     <p>How are you?</p>
+// </Fragment>
+
+const Greeter = () => <>
+    <h1>Hello</h1>
+    <p>How are you?</p>
+</>
+
+const App = props => <div>
+    <Greeter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+
+
+
+
+// import React, { Fragment} from 'react';
+import React from 'react';
+
+import ReactDOM from 'react-dom'
+
+// const Greeter = () => <React.Fragment>
+//     <h1>Hello</h1>
+//     <p>How are you?</p>
+// </React.Fragment>
+
+// const Greeter = () => <Fragment>
+//     <h1>Hello</h1>
+//     <p>How are you?</p>
+// </Fragment>
+
+const Greeter = () => <>
+    <h1>Hello</h1>
+    <p>How are you?</p>
+</>
+//Table  - Grid
+
+const Grid = props => {
+    return <table border="1">
+        <thead >
+            <Columns />
+        </thead>
+        <GridBody users={props.datasource} />
+    </table>
+}
+// //withoutFragement
+// const Columns = props => {
+//     return <div>
+//         <td>Name</td>
+//         <td>Location</td>
+//     </div>
+// }
+
+//withFragement
+const Columns = props => {
+    return <>
+        <td>Name</td>
+        <td>Location</td>
+        <td>Email</td>
+
+    </>
+}
+const GridBody = props => {
+    return <>
+        <tbody>
+            {
+                props.users.map((user, index) => {
+                    return <tr key={index}>
+                        <th scope="row">{user.id}</th>
+                        <td>{user.name}</td>
+                        <td>{user.email}</td>
+                    </tr>
+                })
+            }
+
+        </tbody>
+    </>
+}
+
+const USERS = [
+    { id: 1, name: 'subramaian', email: 'subu@gmail.com' },
+    { id: 2, name: 'Dodge', email: 'dodge@gmail.com' }
+]
+const App = props => <div>
+    <Greeter />
+    <Grid datasource={USERS} />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+..............................................................................................
+				Component Communication - Patterns
+.............................................................................................
+
+1.Parent to Child 
+   Components can share data from the parent to child via props
+2.Across the components - Global Data
+   1.Share data across the components via "Redux".
+   2.React Context  Object used to share global data inside react itself
+3.Child to Parent
+   Generally , we cant share child to parent, only possibly via lib called "Redux"
+..............................................................................................
+				React Context  - To share data 
+..............................................................................................
+
+What is Context?
+ 
+Object helps to transfer data from parent to anywhere in herierchy.
+
+Context provides a way to pass data through the component tree without having to pass props down manually at every level.
+
+When to use context?
+
+Context is designed to share data that can considered "global" for a tree of React components
+such as "theme , login data, preferred langugage".
+
+You should not share biz data via context.
+
+Without Context?
+import React from 'react';
+import ReactDOM from 'react-dom'
+
+
+const ThemedButton = props => <div>
+    <Button theme={props.theme} />
+</div>
+const Button = props => <div>
+    <button style={{ color: 'whitesmoke', backgroundColor: props.theme }}>Hello!</button>
+</div>
+const Toolbar = props => <div>
+    <ThemedButton theme={props.theme} />
+</div>
+const Page = props => <>
+    <Toolbar theme={props.theme} />
+</>
+
+const theme = {
+    dark: "black"
+}
+const App = () => <div>
+    <Page theme={theme.dark} />
+</div>
+
+
+ReactDOM.render(<App />, document.getElementById('root'))
+..............................................................................................
+					React.createContext
+
+Returns two objects
+
+1.Provider
+   Where we share data
+2.Consumer
+   Where we consume data
+
+
+import React, { createContext } from 'react';
+import ReactDOM from 'react-dom'
+
+
+//create Context object 
+// const themeContext = React.createContext('theme')
+// const themeContext = createContext('theme')
+const { Provider, Consumer } = createContext('theme')
+
+
+const ThemedButton = props => <div>
+    <Button />
+</div>
+const Button = props => <div>
+    {/* Consumer */}
+    <Consumer>
+        {theme => {
+            //return jsx 
+            return <button style={{ color: 'whitesmoke', backgroundColor: theme.dark }}>Hello!</button>
+        }
+        }
+    </Consumer>
+
+</div>
+const Toolbar = props => <div>
+    <ThemedButton />
+</div>
+const Page = props => <>
+    <Toolbar />
+</>
+
+const theme = {
+    dark: "green"
+}
+const App = () => <div>
+    <Provider value={theme}>
+        <Page />
+    </Provider>
+</div>
+
+
+ReactDOM.render(<App />, document.getElementById('root'))
