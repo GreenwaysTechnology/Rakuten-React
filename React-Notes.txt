@@ -2256,8 +2256,626 @@ const theme = {
 const App = () => <div>
     <Provider value={theme}>
         <Page />
+      
     </Provider>
 </div>
 
 
 ReactDOM.render(<App />, document.getElementById('root'))
+..............................................................................................
+				Conditional Rendering
+
+ you can create distinct components that encapsulate behavior you need. Then, you can render only some of them, depending on the state of your application.
+
+Conditional rendering in React works the same way conditions work in JavaScript. Use JavaScript operators like if or the conditional operator to create elements representing the current state, and let React update the UI to match them.
+
+import React from 'react';
+import ReactDOM from 'react-dom'
+
+
+
+const DashBoard = props => <div>
+    <h1>DashBoard</h1>
+</div>
+const SignUp = props => <div>
+    <h1>Please SignUp!</h1>
+</div>
+
+// const Login = props => {
+//     const { username, password } = props.user;
+//     if (username === 'admin' && password === 'admin') {
+//         return <DashBoard />
+//     }
+//     return <SignUp />
+
+// }
+
+// const Login = props => {
+//     const { username, password } = props.user;
+//     const status = (username === 'admin') && (password === 'admin');
+//     return status ? <DashBoard /> : <SignUp />
+// }
+
+// const Login = props => {
+//     const { username, password } = props.user;
+//     return (username === 'admin') && (password === 'admin') ? <DashBoard /> : <SignUp />
+// }
+const Login = ({ user: { username, password } }) => (username === 'admin') && (password === 'admin') ? <DashBoard /> : <SignUp />
+
+
+const App = () => <div>
+    <Login user={{ username: 'admin', password: 'admin' }} />
+    <Login user={{ username: 'foo', password: 'bar' }} />
+
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+..............................................................................................
+				   What can be return value?
+import React from 'react';
+import ReactDOM from 'react-dom'
+
+//Return value can be jsx element
+
+// const MyComponent = ()=> {
+//     return <h1>JSX Element</h1>
+// }
+//return value can be primitives values
+// const MyComponent = ()=> {
+//     return "Hello"
+// }
+// const MyComponent = ()=> {
+//     return 10
+// }
+
+// const MyComponent = ()=> {
+//     return true
+// }
+// const MyComponent = ()=> {
+//     return true
+// }
+// const MyComponent = ()=> {
+//     return [1,2,3,4,5,5]
+// }
+//objects cant be returned
+// const MyComponent = () => {
+//     return { name: 'test' }
+// }
+//valid; but no output
+// const MyComponent = () => {
+//     return  //undefined
+// }
+//valid but no output
+const MyComponent = () => {
+    return null //undefined
+}
+const App = () => <div>
+    <MyComponent />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+
+
+
+..............................................................................................
+				     State
+.............................................................................................
+
+..............................................................................................
+				  Dynamic Data- How to Mutate data
+..............................................................................................
+
+How to mutate data inside component?
+
+With Respect to props, data cant be changed by the component.
+
+What if i want to change the data?
+  There is pattern called state pattern.
+
+In Old React, state pattern can be introduced only inside "class Component".
+
+The word state means data of component.
+
+React.Component class has instance variable called "state"
+
+state
+ The state contains data specific to this component that may change over time.
+ The state is user-defined, and it should be a plain JavaScript object.
+
+state variable's default value is "null".
+we are expected to initalize the data of the component inside object and assign that object to state variable.
+
+state = {
+
+
+}
+Features of state:
+
+1.state is always "object" - we need to encapsulate the data inside literal object like props.
+
+Steps: 
+1.declare component class and initalize the state variable,bind in the UI
+
+import React from 'react';
+import ReactDOM from 'react-dom'
+
+//state 
+class Counter extends React.Component {
+    //initalize the state 
+    state = {
+        //here your component specific data
+       counter:0  //initalize state //
+    };
+
+    render() {
+        console.log(this.state)
+        return <>
+            <h1>Counter Application</h1>
+            <h3>Counter : {this.state.counter}</h3>
+        </>
+    }
+
+}
+
+const App = () => <div>
+    <Counter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+
+..............................................................................................
+				User Interaction and Components
+.............................................................................................
+
+Any UI is subject to user interaction.
+
+How to interact with User interface?
+ "Event Handling"
+
+Handling Events:
+..................
+
+Handling events with React elements is very similar to handling events on DOM elements.
+
+There are some syntax differences:
+
+React events are named using camelCase, rather than lowercase.
+With JSX you pass a function as the event handler, rather than a string.
+
+HTML:
+<button onclick="activateLasers()">
+  Activate Lasers
+</button>
+JSX:
+<button onClick={method}>
+  Activate Lasers
+</button>
+
+Step 2: Declare Event Listener , bind Event Listener with button
+
+import React from 'react';
+import ReactDOM from 'react-dom'
+
+//state 
+class Counter extends React.Component {
+    //initalize the state 
+    state = {
+        //here your component specific data
+        counter: 0  //initalize state //
+    };
+
+    //event listner
+    onIncrement = () => {
+        alert('button')
+    }
+
+    render() {
+        console.log(this.state)
+        return <>
+            <h1>Counter Application</h1>
+            <h3>Counter : {this.state.counter}</h3>
+            <button onClick={this.onIncrement}>+</button>
+        </>
+    }
+
+}
+
+const App = () => <div>
+    <Counter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+
+
+
+How React updates UI?
+
+via "render method"
+
+render:
+ 
+=>it is method called by react engine.
+     can we call render directly inside event listener?
+        Yes,but no impact on ui update 
+    onIncrement = () => {
+         //increment value of state 
+        this.state.value = this.state.value + 1
+        console.log("value : ",this.state.value)
+        this.render()
+    }
+   Note : render should not be called directly
+
+How to call render?
+render is called by react engine only.
+how react engine will triger render?
+  via React api "setState() ,forceUpdate()"
+
+
+Syntax:
+
+setState(updater, [callback])
+
+updater = it is function
+callback =it is also function which optional parameter
+
+updater:
+ function having state mutation logic
+
+step1:
+    this.setState(function(){
+            console.log('state mutation logic goes')
+        })
+
+updater function syntax:
+
+takes two args
+
+1.state  is just variable you can have any name - holds the value of state object
+ which is called as "previous state" or "old state"
+2.props is just variable holding current props variable- which is optional
+
+function(state,[props]){
+            console.log('state mutation logic goes')
+}
+
+function(prevState){
+            console.log('state mutation logic goes')
+}
+
+Updater function returns object, what object, if you want to understand this , we need to under one more functional programming principle called "Pure function 2nd Rule".
+
+Updater function returns object, what object, if you want to understand this , we need to under one more functional programming principle called "Pure function 2nd Rule".
+
+
+Pure Functions:
+
+Rule A:
+  If function receives input, the function returns the same input without any mutation.
+  Every Component with respect to props, are pure functions.
+
+Rule B:
+
+ What if function receives input, need to be mutated but it should follow the pure function rule.
+
+With help of "Immutablity"
+
+What is immutable?
+
+creating new object every time when you update the object , immutablity.
+
+if the function does that , that function is called pure function.
+
+pure function must return, "immutable object".
+
+//Pure functions :2nd rule
+
+//Impure function : it changes the input parameter
+function updateProfile_(profile, city) {
+    //update city and return updated profile object: 
+    profile.city = city
+    return profile;
+}
+//Pure function : i need to change the input parameter but it should be pure.
+function updateProfile(profile, city) {
+    //update city and return updated profile object: 
+    //return new Object ,by copying all properties ,with updated
+
+    //in order to return new Object we have many synatx
+    //old syntax : we copy object properties manually 
+    // return {
+    //     id: profile.id,
+    //     name: profile.name,
+    //     city: city
+    // }
+    //2nd syntax:
+    // return Object.assign({}, profile, { city: city })
+    //3rd syntax: spread notation
+    return { ...profile, city }
+}
+
+let profile = {
+    id: 1,
+    name: 'Subramanian',
+    city: 'Chennai'
+}
+// console.log('Before Update', profile)
+// console.log('After Update', updateProfile(profile, 'Coimbatore'))
+let updatedProfile = updateProfile(profile, 'Coimbatore')
+console.log(profile === updatedProfile ? "Same Object " : " Different Object")
+
+What you can make immutable?
+
+->literal objects
+->Array objects
+
+//Pure functions :2nd rule
+
+//Impure function : it changes the input parameter
+function updateProfile_(profile, city) {
+    //update city and return updated profile object: 
+    profile.city = city
+    return profile;
+}
+//Pure function : i need to change the input parameter but it should be pure.
+function updateProfile(profile, city) {
+    //update city and return updated profile object: 
+    //return new Object ,by copying all properties ,with updated
+
+    //in order to return new Object we have many synatx
+    //old syntax : we copy object properties manually 
+    // return {
+    //     id: profile.id,
+    //     name: profile.name,
+    //     city: city
+    // }
+    //2nd syntax:
+    // return Object.assign({}, profile, { city: city })
+    //3rd syntax: spread notation
+    return { ...profile, city }
+}
+
+let profile = {
+    id: 1,
+    name: 'Subramanian',
+    city: 'Chennai'
+}
+// console.log('Before Update', profile)
+// console.log('After Update', updateProfile(profile, 'Coimbatore'))
+let updatedProfile = updateProfile(profile, 'Coimbatore')
+console.log(profile === updatedProfile ? "Same Object " : " Different Object")
+
+//arrays and immutatblity
+//impure
+// function addTodo(todos, newTodo) {
+//     return todos.push(newTodo)
+// }
+//pure : how to return array immutable
+function addTodo(todos, newTodo) {
+    //return todos.concat(newTodo)
+    return [...todos,newTodo]
+}
+let todos = [{
+    title: 'Learn react',
+    done: true
+}];
+
+Object.freeze(todos)
+console.log(addTodo(todos, { title: 'Learn Pure functions', done: false }))
+
+List of Array immutable apis:
+
+1.concat
+2.map
+3.filter
+3.reduce
+
+updaterFunction Return value:
+
+=>Should return always immutable object.
+
+                    "setState method is pure function"
+
+
+import React from 'react';
+import ReactDOM from 'react-dom'
+
+//state 
+class Counter extends React.Component {
+    //initalize the state 
+    state = {
+        //here your component specific data
+        counter: 0  //initalize state //
+    };
+
+    //event listner
+    onIncrement = () => {
+        // this.state.counter = this.state.counter + 1
+        // console.log("Inside Listener => ", this.state.counter);
+        // //trigger setState method
+        // this.setState(function (prvState) {
+        //     console.log("old state => ", prvState)
+        //     // return {
+        //     //     counter: prvState.counter + 1
+        //     // }
+        //     // return Object.assign({}, prvState, { counter: prvState.counter + 1 })
+        //     return { ...prvState, counter: prvState.counter + 1 }
+        // })
+        this.setState((prvState) => {
+            console.log("old state => ", prvState)
+            return { ...prvState, counter: prvState.counter + 1 }
+        })
+    }
+
+    render() {
+        console.log("Current State => ", this.state)
+        return <>
+            <h1>Counter Application</h1>
+            <h3>Counter : {this.state.counter}</h3>
+            <button onClick={this.onIncrement}>+</button>
+        </>
+    }
+
+}
+
+const App = () => <div>
+    <Counter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+..............................................................................................
+				Event Binding Syntaxs:
+
+import React from 'react';
+import ReactDOM from 'react-dom'
+
+//state 
+class Counter extends React.Component {
+    //initalize the state 
+    state = {
+        counter: 0
+    };
+
+    //event listner
+    onIncrement = () => {
+        this.setState((prvState) => {
+            console.log("old state => ", prvState)
+            return { ...prvState, counter: prvState.counter + 1 }
+        })
+    }
+
+    render() {
+        console.log("Current State => ", this.state)
+        return <>
+            <h1>Counter Application</h1>
+            <h3>Counter : {this.state.counter}</h3>
+            <button onClick={this.onIncrement}>+</button>
+            <button onClick={() => {
+                this.setState(prvState => ({ ...prvState, counter: prvState.counter - 1 }))
+            }}>-</button>
+
+        </>
+    }
+
+}
+
+const App = () => <div>
+    <Counter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+.............................................................................................
+				Multi State
+............................................................................................
+import React from 'react';
+import ReactDOM from 'react-dom'
+
+//state 
+class Counter extends React.Component {
+    //initalize the state 
+    state = {
+        incValue: 10,
+        decValue: 100
+    };
+
+    //event listner
+    onIncrement = () => {
+        this.setState((prvState) => {
+            console.log("old state => ", prvState)
+            return { ...prvState, incValue: prvState.incValue + 1 }
+        })
+    }
+
+    render() {
+        console.log("Current State => ", this.state)
+        return <>
+            <h1>Counter Application</h1>
+            <h3>Increment Value : {this.state.incValue} - Decrement Value {this.state.decValue}</h3>
+            <button onClick={this.onIncrement}>+</button>
+            <button onClick={() => {
+                this.setState(prvState => ({ ...prvState, decValue: prvState.decValue - 1 }))
+            }}>-</button>
+
+        </>
+    }
+
+}
+
+const App = () => <div>
+    <Counter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+.............................................................................................
+				State As Prop  - dynamic Props
+
+.............................................................................................
+				Dyanmic Props - State as prop
+..............................................................................................
+
+The state of component can be passed as prop to another component.
+
+Component Responsiblity:
+
+1.A Component owns data(state) and biz logic(where state mutation happens).
+   -StateFull Component
+ Statefull Component is other wise called as "Container Component"
+
+classes are used as container/statefull components
+
+2.A Component owns only UI logic
+   -Stateless component
+ Stateless component is other wise called as "Presentational Component"
+
+functions are used as "stateless component / presentational Component"
+
+functional components receives data from class components.
+
+state as prop:Dynamic Props
+function as prop: how to pass listener function as prop.
+import React from 'react';
+import ReactDOM from 'react-dom'
+
+//Container Component
+class Counter extends React.Component {
+    //initalize the state 
+    state = {
+        incValue: 10,
+        decValue: 100
+    };
+
+    onIncrement = () => {
+        this.setState((prvState) => {
+            return { ...prvState, incValue: prvState.incValue + 1 }
+        })
+    }
+    onDecrement = () => {
+        this.setState(prvState => ({ ...prvState, decValue: prvState.decValue - 1 }))
+    }
+    render() {
+        return <>
+            {/* Here we pass state as prop,function as prop */}
+            <CounterDisplay {...this.state}
+                onIncrement={this.onIncrement}
+                onDecrement={this.onDecrement} />
+        </>
+    }
+
+}
+//presentational Component
+const CounterDisplay = props => <><h1>Counter Application</h1>
+    <h3>Increment Value : {props.incValue} - Decrement Value {props.decValue}</h3>
+    <button onClick={props.onIncrement}>+</button>
+    <button onClick={props.onDecrement}>-</button>
+</>
+
+const App = () => <div>
+    <Counter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+
+
+
+
+
+
