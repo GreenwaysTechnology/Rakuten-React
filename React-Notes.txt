@@ -3728,7 +3728,251 @@ ReactDOM.render(<App />, document.getElementById('root'))
 ...........................................................................................
 		   Task : Convert todo class Component app into functional component
 ..........................................................................................
+.............................................................................................
+		Component Life Methods and functional Components
+.............................................................................................
+comonentDidMount:
+ Used for doing some resource intensive tasks, such as setting up ajax calls for inital page.
+ It is called after inital render
 
+compoentDidUpdate:
+  called after every update finishes.
+
+How to write these two life cycle methods inside functional components.
+
+"useEffect" Hook.
+  =>can replace both life cycle methods.
+mount and update phase
+import React, { useEffect, useState } from 'react'
+import ReactDOM from 'react-dom'
+
+const Counter = props => {
+    let state = { value: 10 };
+    const [counter, setCounter] = useState(state)
+
+    const onIncrement = () => {
+        setCounter(oldState => {
+            console.log(oldState)
+            return { ...oldState, value: oldState.value + 1 }
+        })
+    }
+    useEffect(() => {
+        console.log('useEffect')
+    },[])
+
+    return <div>
+        <h1>Counter : {counter.value}</h1>
+        <button onClick={onIncrement}>+</button>
+
+    </div>
+}
+
+
+const App = props => <div>
+    <h1>Functional Component</h1>
+    <Counter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+..............................................................................................
+import React, { useEffect, useState } from 'react'
+import ReactDOM from 'react-dom'
+
+const TodoApi = {
+    getAllTodos(url) {
+        return fetch(url);
+    }
+}
+const Todos = props => {
+    
+    const [state, setState] = useState({
+        error: null,
+        isLoaded: false, //spiner status
+        todos: [] // data
+    })
+    useEffect(() => {
+        TodoApi.getAllTodos('https://jsonplaceholder.typicode.com/todos')
+            .then(response => response.json())
+            .then(todos => {
+                setTimeout(() => {
+                    setState(prevState => ({ ...prevState, todos: prevState.todos.concat(todos), isLoaded: true }))
+                }, 5000)
+            })
+            .catch(err => {
+                setState(prevState => ({ ...prevState, isLoaded: true, error: err }))
+            });
+    }, [])
+    const { error, isLoaded, todos } = state;
+    if (error) {
+        return <Error error={error} />
+    } else if (!isLoaded) {
+        return <Spinner />
+    } else {
+        return <TodoList todos={todos} />
+    }
+}
+const TodoList = props => {
+    const { todos } = props
+    return <ul className="list-group">
+        {todos.map((todo, index) => (
+            <li key={index}>
+                <span className="badge badge-pill badge-primary">
+                    {todo.id}
+                </span>
+                <span>
+                    {todo.title}
+                </span>
+            </li>
+        ))}
+    </ul>
+}
+const Error = props => {
+    return <>
+        <h2>{props.error}</h2>
+    </>
+}
+const Spinner = props => {
+    return <>
+        <h2 style={{ backgroundColor: 'yellow' }}>Loading...</h2>
+    </>
+}
+
+const App = props => <div>
+    <h1>Ajax calls inside FuncitionalComponent</h1>
+    <Todos />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+..............................................................................................
+			  Custom Hooks - How to write resuable code
+.............................................................................................
+
+
+import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
+
+
+const CustomerReview = props => {
+    const [review, setReview] = useState(1);
+    const [screen, setScreen] = useState('Customer Manager App')
+    //get Screen size
+    const [width, setWidth] = useState(window.innerWidth);
+
+    //Change the screen title once the dom is ready
+    useEffect(() => {
+        document.title = screen
+        //component willUnMount
+        return function () {
+            console.log('this is called when component is removed')
+        }
+
+    })
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth)
+        //imperative dom listner
+        window.addEventListener('resize', handleResize)
+        //clean up code
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        }
+    })
+
+    const onIncrement = evt => {
+        setReview(review + 1)
+        setScreen(`${screen} - Review`)
+    }
+    return <div>
+        <h1>Customer Manager App: using Side effects</h1>
+        <h1>Screen Width {width}</h1>
+        <h1>Review : {review}</h1>
+        <button onClick={onIncrement}>PostiveReview</button>
+    </div>
+}
+
+const App = () => <CustomerReview />
+
+ReactDOM.render(<App />, document.getElementById('root'))
+
+
+in the above example, we can see there are features
+
+1.Customer review feature
+2.screen title feature
+3.screen width calculation feature
+
+Here whate are features are tightly coupled with Customer 
+ only Review feature
+
+Two are features are highly generic, meaning you can use inside another component as well.
+
+Hooks will help isloate features into separate hook so we can reuse across the application.
+
+
+src/hooks/useScreenTitle.js
+import { useEffect, useState } from 'react';
+
+function useWindowTitle(title = '') {
+    const [screen, setScreen] = useState(title)
+    //initalize new screen
+    useEffect(() => {
+        document.title = screen
+    })
+    //return screen and setScren
+    return { screen, setScreen }
+}
+export { useWindowTitle }
+
+src/hooks/useWindowWidth.js
+import { useEffect, useState } from 'react';
+
+//Hooks are not components but you can use component life cycle methods 
+
+const useWindowInnerWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth);
+    //logic
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth)
+        //imperative dom listner
+        window.addEventListener('resize', handleResize)
+        //clean up code
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        }
+    });
+    return width;
+
+};
+
+export { useWindowInnerWidth };
+
+
+
+import React, { useState } from 'react';
+import { useWindowTitle } from './hooks/useScreentitle';
+import { useWindowInnerWidth } from './hooks/usewindowwidth';
+import ReactDOM from 'react-dom';
+
+
+const CustomerReview = props => {
+    const [review, setReview] = useState(1);
+    const { screen, setScreen } = useWindowTitle('Customer Manager App')
+    const width = useWindowInnerWidth()
+
+    const onIncrement = evt => {
+        setReview(review + 1)
+        setScreen(`${screen} - Review`)
+    }
+    return <div>
+        <h1>Customer Manager App: using Side effects</h1>
+        <h1>Screen Width {width}</h1>
+        <h1>Review : {review}</h1>
+        <button onClick={onIncrement}>PostiveReview</button>
+    </div>
+}
+
+const App = () => <CustomerReview />
+
+ReactDOM.render(<App />, document.getElementById('root'))
 
 
 

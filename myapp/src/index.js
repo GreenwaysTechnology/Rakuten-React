@@ -1,29 +1,26 @@
-import React, { useState } from 'react'
-import ReactDOM from 'react-dom'
+import React, { useState } from 'react';
+import { useWindowTitle } from './hooks/useScreentitle';
+import { useWindowInnerWidth } from './hooks/usewindowwidth';
+import ReactDOM from 'react-dom';
 
-const Counter = props => {
-    let state = { value: 10 };
-    const [counter, setCounter] = useState(state)
 
-    const onIncrement = () => {
-        setCounter(oldState => {
-            console.log(oldState)
-            return { ...oldState, value: oldState.value + 1 }
-        })
+const CustomerReview = props => {
+    const [review, setReview] = useState(1);
+    const { screen, setScreen } = useWindowTitle('Customer Manager App')
+    const width = useWindowInnerWidth()
+
+    const onIncrement = evt => {
+        setReview(review + 1)
+        setScreen(`${screen} - Review`)
     }
-
-
     return <div>
-        <h1>Counter : {counter.value}</h1>
-        <button onClick={onIncrement}>+</button>
-
+        <h1>Customer Manager App: using Side effects</h1>
+        <h1>Screen Width {width}</h1>
+        <h1>Review : {review}</h1>
+        <button onClick={onIncrement}>PostiveReview</button>
     </div>
 }
 
-
-const App = props => <div>
-    <h1>Functional Component</h1>
-    <Counter />
-</div>
+const App = () => <CustomerReview />
 
 ReactDOM.render(<App />, document.getElementById('root'))
