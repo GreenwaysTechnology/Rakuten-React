@@ -2,20 +2,19 @@ import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
 const Counter = props => {
-    let state = { value: 10 };
-    const [counter, setCounter] = useState(state)
-
+    const [value1, setValue1] = useState(10)
+    const [value2, setValue2] = useState(100)
+    
     const onIncrement = () => {
-        setCounter(oldState => {
-            console.log(oldState)
-            return { ...oldState, value: oldState.value + 1 }
-        })
+        setValue1(value1 + 1);
     }
-
-
+    const onDecrement = () => {
+        setValue2(value1 - 1);
+    }
     return <div>
-        <h1>Counter : {counter.value}</h1>
+        <h1>Counter : {value1} {value2}</h1>
         <button onClick={onIncrement}>+</button>
+        <button onClick={onDecrement}>-</button>
 
     </div>
 }

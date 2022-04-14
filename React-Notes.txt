@@ -2873,6 +2873,866 @@ const App = () => <div>
 </div>
 
 ReactDOM.render(<App />, document.getElementById('root'))
+..............................................................................................
+..............................................................................................					Event Listners Deep dive
+..............................................................................................
+
+SyntheticEvent:
+
+ _ it is Event object provided by react to refer dom elements inside react components.
+
+Event Object provides lot of apis
+
+api:
+
+boolean bubbles
+boolean cancelable
+DOMEventTarget currentTarget
+boolean defaultPrevented
+number eventPhase
+boolean isTrusted
+DOMEvent nativeEvent
+void preventDefault()
+boolean isDefaultPrevented()
+void stopPropagation()
+boolean isPropagationStopped()
+void persist()
+DOMEventTarget target
+number timeStamp
+string type
+
+target : To refer the DOM object
+..............................................................................................
+		 How to get Input from the User -How to use Syn Event Object
+...........................................................................................
+
+SyntheticEvent object is passed as arg to event listner
+
+ onIncrement = (evt) => {
+        
+ }
+
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom'
+import 'bootstrap/dist/css/bootstrap.css'
+
+
+class UserInput extends Component {
+    state = {
+        text: 'default'
+    }
+    onUpdate = evt => {
+        //read textbox value
+      const value= evt.target.value
+      this.setState(prevState=>({...prevState,text:value}))
+    }
+
+    render() {
+        return <div className="container">
+            <h1>User Input Application</h1>
+            <h1> {this.state.text}</h1>
+            <input onChange={this.onUpdate } />
+        </div>
+    }
+
+}
+
+
+const App = props => <div>
+    <UserInput />
+</div>
+ReactDOM.render(<App />, document.getElementById('root'))
+..............................................................................................
+				Component Life Cycles
+
+Can be classified into 3 phases
+1.Mount
+2.Update
+3.UnMount
+
+
+1.Mounting
+ This is inital phase of an component
+
+ These methods are called in the following order when an instance of a component is being   created and inserted into the DOM:
+
+1.constructor() -
+2.static getDerivedStateFromProps()
+3.render()
+4.componentDidMount()
+
+Mount phase methods are called only once, execpt one method - render.
+
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import 'bootstrap/dist/css/bootstrap.css'
+
+class ParentComponent extends Component {
+    state = {
+        i: 0
+    }
+    //mount phase methods
+    constructor() {
+        super()
+        console.log('Parent Constructor is called')
+    }
+    render() {
+        console.log('Parent render is called')
+        return <div>
+            <h1>Parent Component</h1>
+            <ChildComponent />
+        </div>
+    }
+
+    componentDidMount() {
+        console.log('Parent ComponentDidMount is called')
+    }
+
+
+}
+
+class ChildComponent extends Component {
+
+    state = {
+        j: 0
+    }
+    //mount phase methods
+    constructor() {
+        super()
+        console.log('ChildComponent Constructor is called')
+    }
+    render() {
+        console.log('ChildComponent render is called')
+
+        return <div>
+            <h1>Child Component</h1>
+        </div>
+    }
+
+    componentDidMount() {
+        console.log('ChildComponent ComponentDidMount is called')
+    }
+
+
+
+}
+
+ReactDOM.render(<ParentComponent />, document.getElementById('root'))
+
+
+Parent Constructor is called
+index.js:15 Parent render is called
+index.js:37 ChildComponent Constructor is called
+index.js:40 ChildComponent render is called
+index.js:48 ChildComponent ComponentDidMount is called
+index.js:23 Parent ComponentDidMount is called
+
+Note:
+
+constructors are not used now days-No focus on Constructor
+
+static getDerivedStateFromProps() -  less use , no need to focus.
+
+render()
+
+ -It is called when component prepares object tree - vdom
+ render -----cons---render---cons---render-Tree will be ready.
+
+Once the tree is ready, which mounts/inserts the VDOM into Real DOM via ReactDOM.render()
+
+ReactDOM.render() is entry and exit point of React Application,ReactDOM.render translates the Virtual DOM into real DOM.
+
+
+ReactDOM.render(<Component1/>)--->Component1.constructor -Component1.render ----Component2.constructor----Component2.render----Component3.Constructor--Component3.render => Tree is Ready---->ReactDOM.render(V.Tree)---|Insert in real DOM.
+..........................................................................................
+componentDidMount :
+
+componentDidMount is called after vdom inserted into real DOM.
+
+ReactDOM.render(<Component1/>)--->Component1.constructor -Component1.render ----Component2.constructor----Component2.render----Component3.Constructor--Component3.render => Tree is Ready---->ReactDOM.render(V.Tree)---|Insert in real DOM ---|Component3.componentDidMount---->Component2.componentDidMount---Component1.componentDidMount
+
+This is method is used heavily in the component life cycles.
+
+Use cases:
+1.For resource insentive works
+->Ajax calls
+->Web sockets
+->Timers code
+->Rxjs initalization
+
+............................................................................................
+			Web Service Integration in React -Ajax
+............................................................................................
+
+How to integrate ajax in react?
+
+React has no any api for talking to webservice.
+You can use any popular ajax libs.
+
+1.fetch
+2.axios
+3.any ajax apis
+
+fetch
+
+
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom'
+import 'bootstrap/dist/css/bootstrap.css'
+
+
+class Todo extends Component {
+    
+    render() {
+        return <div>
+            <h1>TodoApp-WebService Integration</h1>
+        </div>
+    }
+    componentDidMount() {
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        fetch(url).then(response => response.json()).then(todos => {
+            console.log(todos)
+        }).catch(err => {
+            console.log(err)
+        });
+    }
+}
+
+const App = () => <div className="container">
+    <Todo />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+
+.............................................................................................
+	   How to show data in the UI which was fetched from the WebServices
+..............................................................................................
+
+There are three possibilites you have when you do ajax calls
+
+1.You may have data on time
+2.You may not have data on time - delay or slow
+    incase of slow data fetch we show "spinners"
+3.you may get error
+    server down,network failure,api malfunctions....
+
+You have to write code according to state of api
+
+ - success on time
+ - success with spinner
+ - error 
+
+if you have to write if condition to check these three status, according to the status we switch mode.
+
+How to write if ...else conditions in side jsx?
+   Conditional Rendering
+
+
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom'
+import 'bootstrap/dist/css/bootstrap.css'
+
+const Error = props => {
+    return <>
+        <h2>{props.error}</h2>
+    </>
+}
+const Spinner = props => {
+    return <>
+        <h2 style={{ backgroundColor: 'yellow' }}>Loading...</h2>
+    </>
+}
+
+class Todo extends Component {
+
+    state = {
+        error: null,
+        isLoaded: false, //spiner status
+        todos: [] // data
+    }
+
+    render() {
+        const { error, isLoaded, todos } = this.state;
+        if (error) {
+            return <Error error={error} />
+        } else if (!isLoaded) {
+            return <Spinner />
+        } else {
+            return <TodoList todos={todos} />
+        }
+
+    }
+    componentDidMount() {
+        const url = 'https://jsonplaceholder.typicode.com/todos'
+        fetch(url).then(response => response.json()).then(todos => {
+            // console.log(todos)
+            setTimeout(() => {
+                this.setState(previousState => {
+                    return { ...previousState, todos: previousState.todos.concat(todos), isLoaded: true };
+                });
+            }, 5000)
+
+        }).catch(err => {
+            // console.log(err)
+            this.setState({
+                isLoaded: true,
+                err
+            });
+        });
+    }
+}
+
+const TodoList = props => {
+    const { todos } = props
+    return <ul className="list-group">
+        {todos.map((todo, index) => (
+            <li key={index}>
+                <span className="badge badge-pill badge-primary">
+                    {todo.id}
+                </span>
+                <span>
+                    {todo.title}
+                </span>
+            </li>
+        ))}
+    </ul>
+}
+
+const App = () => <div className="container">
+    <Todo />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+..........................................................................................
+
+..............................................................................................
+				 Update
+.............................................................................................
+
+Update Phase gets trigger once , the component is mounted into DOM, when user starts interaction like clicking button, typing in the user....
+
+An update can be caused by changes to props or state. These methods are called in the following order when a component is being re-rendered:
+
+static getDerivedStateFromProps() - called both in mount and update cycle
+shouldComponentUpdate() -
+render()
+getSnapshotBeforeUpdate()
+componentDidUpdate()
+
+
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import 'bootstrap/dist/css/bootstrap.css'
+
+class ParentComponent extends Component {
+    state = {
+        i: 0
+    }
+    //mount phase methods
+    constructor() {
+        super()
+        console.log('Parent Constructor is called')
+    }
+
+
+    render() {
+        console.log('Parent render is called')
+        return <div>
+            <h1>Parent Component</h1>
+            <h1>{this.state.i} </h1>
+            <button onClick={() => {
+                this.setState((oldstate) => ({ ...oldstate, i: oldstate.i + 1 }))
+            }}>+</button>
+            <ChildComponent {...this.state} />
+        </div>
+    }
+
+    //after mount
+    componentDidMount() {
+        console.log('Parent ComponentDidMount is called')
+    }
+    componentDidUpdate(){
+        console.log('Parent componentDidUpdate is called')
+    }
+
+
+}
+
+class ChildComponent extends Component {
+
+    //mount phase methods
+    constructor() {
+        super()
+        console.log('ChildComponent Constructor is called')
+    }
+    render() {
+        console.log('ChildComponent render is called', this.props)
+
+        return <div>
+            <h1>Child Component</h1>
+        </div>
+    }
+
+    componentDidMount() {
+        console.log('ChildComponent ComponentDidMount is called')
+    }
+    componentDidUpdate(){
+        console.log('Child componentDidUpdate is called')
+    }
+
+
+
+}
+
+ReactDOM.render(<ParentComponent />, document.getElementById('root'))
+
+.............................................................................................
+				How to prevent to rerender?
+
+shouldComponentUpdate()
+ -Which returns true or false
+    true means - render method should be called
+    false means - render method will not be called
+
+render is called for every ui update,some times i dont want to call render, how to stop calling render method - override shouldComponentUpdate method return false.
+
+when this method is usefull?
+ When we want to compare props and state , based on that i want to take decision.
+ You want to skip component update based on state and props comparsion.
+
+
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import 'bootstrap/dist/css/bootstrap.css'
+
+class ParentComponent extends Component {
+    state = {
+        i: 0
+    }
+    //mount phase methods
+    constructor() {
+        super()
+        console.log('Parent Constructor is called')
+    }
+
+
+    render() {
+        console.log('Parent render is called')
+        return <div>
+            <h1>Parent Component</h1>
+            <h1>{this.state.i} </h1>
+            <button onClick={() => {
+                this.setState((oldstate) => ({ ...oldstate, i: oldstate.i + 1 }))
+            }}>+</button>
+            <ChildComponent {...this.state} />
+        </div>
+    }
+
+    //after mount
+    componentDidMount() {
+        console.log('Parent ComponentDidMount is called')
+    }
+    componentDidUpdate(){
+        console.log('Parent componentDidUpdate is called')
+    }
+
+
+}
+
+class ChildComponent extends Component {
+
+    //mount phase methods
+    constructor() {
+        super()
+        console.log('ChildComponent Constructor is called')
+    }
+    render() {
+        console.log('ChildComponent render is called', this.props)
+
+        return <div>
+            <h1>Child Component</h1>
+        </div>
+    }
+
+    shouldComponentUpdate(){
+        return false;
+    }
+
+    componentDidMount() {
+        console.log('ChildComponent ComponentDidMount is called')
+    }
+    componentDidUpdate(){
+        console.log('Child componentDidUpdate is called')
+    }
+
+
+
+}
+
+ReactDOM.render(<ParentComponent />, document.getElementById('root'))
+
+..............................................................................................
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import 'bootstrap/dist/css/bootstrap.css'
+
+class ParentComponent extends Component {
+    state = {
+        i: 0
+    }
+    //mount phase methods
+    constructor() {
+        super()
+        console.log('Parent Constructor is called')
+    }
+
+
+    render() {
+        console.log('Parent render is called')
+        return <div>
+            <h1>Parent Component</h1>
+            <h1>{this.state.i} </h1>
+            <button onClick={() => {
+                this.setState((oldstate) => ({ ...oldstate, i: oldstate.i + 1 }))
+            }}>+</button>
+            <ChildComponent {...this.state} />
+        </div>
+    }
+
+    //after mount
+    componentDidMount() {
+        console.log('Parent ComponentDidMount is called')
+    }
+    componentDidUpdate(){
+        console.log('Parent componentDidUpdate is called')
+    }
+
+
+}
+
+class ChildComponent extends React.PureComponent {
+
+    //mount phase methods
+    constructor() {
+        super()
+        console.log('ChildComponent Constructor is called')
+    }
+    render() {
+        console.log('ChildComponent render is called', this.props)
+
+        return <div>
+            <h1>Child Component</h1>
+        </div>
+    }
+
+    // shouldComponentUpdate(){
+    //     return false;
+    // }
+
+    componentDidMount() {
+        console.log('ChildComponent ComponentDidMount is called')
+    }
+    componentDidUpdate(){
+        console.log('Child componentDidUpdate is called')
+    }
+
+
+
+}
+
+ReactDOM.render(<ParentComponent />, document.getElementById('root'))
+..........................................................................................
+
+Should Update code
+How to stop rendering components.
+
+YOu can use any logic.
+logic can be based on props or state or both
+
+currentState or Next State
+
+currentState:
+  state = { 
+     counter:0
+  }
+   what is the current state value -  0
+ nextState 
+    the state to be computed by setState - button -  counter++ -  1
+
+
+currentProps or Next prop
+ currentProp =1
+ NextProp =2
+import React from 'react';
+import ReactDOM from 'react-dom'
+
+class CounterButton extends React.Component {
+
+    state = { count: 1 };
+
+    shouldComponentUpdate(nextProps, nextState) {
+        console.log('Current State=>', this.state)
+        console.log("Next State =>", nextState)
+        if (nextState.count !== this.state.count) {
+            return true
+        }
+        return false
+    }
+
+    render() {
+        console.log('render is called')
+        return (
+            <>
+                <button
+                    onClick={() => this.setState(state => ({ count: state.count + 1 }))}>
+                    Count: {this.state.count}
+                </button>
+                <button
+                    onClick={() => this.setState(state => ({ count: state.count }))}>
+                    Count: {this.state.count}
+                </button>
+            </>
+        );
+    }
+}
+
+class CounterPureButton extends React.PureComponent {
+
+    state = { count: 1 };
+
+    render() {
+        console.log('render is called')
+        return (
+            <>
+                <button
+                    onClick={() => this.setState(state => ({ count: state.count + 1 }))}>
+                    Count: {this.state.count}
+                </button>
+                <button
+                    onClick={() => this.setState(state => ({ count: state.count }))}>
+                    Count: {this.state.count}
+                </button>
+            </>
+        );
+    }
+}
+ReactDOM.render(<>
+    <h3>Using ComponentShouldUpdate</h3>
+    <CounterButton />
+    <hr />
+    <h3>PureComponent</h3>
+    <CounterPureButton />
+</>
+    , document.getElementById('root'))
+
+
+
+.............................................................................................
+			  render - vdom,reconcellation process.
+............................................................................................
+              Second Time/after ui interaction starts
+			      User
+				 |
+			     clicks button (any ui event)
+				|
+			     listener is called
+				|
+			     setState() method    
+				|
+			     render() is called
+			        |
+			    returns new VDOM
+				|
+			 Enter into Reconcilation Phase
+				|
+             diff alogrithm is applied to find right dom nodes to be updated
+	
+                    compare newVDOM === existing snapshot of dom
+				  |
+                           finally flush the changes
+
+
+.............................................................................................
+				Component Will UnMount
+.............................................................................................
+
+This phase is called once the component is destroyed from the memory.
+
+Unmounting
+This method is called when a component is being removed from the DOM:
+
+componentWillUnmount()
+
+There is no method to call and test componentWillUnMount. This method is generally called when We "Routers".
+
+..............................................................................................
+				Good bye to class Components
+				   Functional Components
+..............................................................................................
+					Hooks
+..............................................................................................
+
+
+What is hook?
+ It is a new feature introduced in react 16.
+ Simple abstraction for class compoents-  how to remove classes from react.
+
+Intention is functional component for every things.
+
+objective of hooks:
+
+1.to eleminate class components as much possible.
+2.Resuable application behaviours
+   eg:ajax calls
+
+
+Hook is just simple javascript function.
+which may take arg or may not.
+Which may or may not return something 	
+
+
+every hook function starts with
+  "use"+functionName ==>hook Syntax
+
+eg:
+"useState"
+"useContext"
+"useEffect"
+"useAjax"
+"useWebSocket"
+"useLayout"
+etc....
+you can create your own hooks as well.
+
+import React, { useState } from 'react'
+import ReactDOM from 'react-dom'
+
+class Counter extends React.Component {
+    state = {
+        value: 0
+    }
+    onIncrement = evt => {
+        this.setState(prevState => ({ ...prevState, value: prevState.value + 1 }))
+    }
+    render() {
+        return <div>
+            <h1>Value : {this.state.value}</h1>
+            <button onClick={this.onIncrement}>+</button>
+        </div>
+    }
+}
+
+const MyCounter = props => {
+    //hook 
+    const [counter, setCounter] = useState(0)
+
+    const onIncrement = () => {
+        //state update
+        // setCounter(oldCounter => {
+        //     return oldCounter + 1
+        // });
+        setCounter(counter + 1);
+    }
+
+    return <div>
+        <h1>Counter : {counter}</h1>
+        <button onClick={onIncrement}>+</button>
+
+    </div>
+}
+
+
+const App = props => <div>
+    <h1>Class Component</h1>
+    <Counter />
+    <hr />
+    <h1>Functonal Component-Hook</h1>
+    <MyCounter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+
+
+useState:
+
+inital Value:
+- can be primitive values , but in state you must wrap inside object
+  useState(1) ,useState("") - even though we use primitive behind, the object is used
+  state = {
+     value:1
+     text:""
+  }
+
+in Hook
+const[value]=  useState(1) ===== > state = {value:1}
+
+You can declare multiple values separatly
+import React, { useState } from 'react'
+import ReactDOM from 'react-dom'
+
+const Counter = props => {
+    const [value1, setValue1] = useState(10)
+    const [value2, setValue2] = useState(100)
+    
+    const onIncrement = () => {
+        setValue1(value1 + 1);
+    }
+    const onDecrement = () => {
+        setValue2(value1 - 1);
+    }
+    return <div>
+        <h1>Counter : {value1} {value2}</h1>
+        <button onClick={onIncrement}>+</button>
+        <button onClick={onDecrement}>-</button>
+
+    </div>
+}
+
+
+const App = props => <div>
+    <h1>Functional Component</h1>
+    <Counter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+.............................................................................................
+import React, { useState } from 'react'
+import ReactDOM from 'react-dom'
+
+const Counter = props => {
+    let state = { value: 10 };
+    const [counter, setCounter] = useState(state)
+
+    const onIncrement = () => {
+        setCounter(oldState => {
+            console.log(oldState)
+            return { ...oldState, value: oldState.value + 1 }
+        })
+    }
+
+
+    return <div>
+        <h1>Counter : {counter.value}</h1>
+        <button onClick={onIncrement}>+</button>
+
+    </div>
+}
+
+
+const App = props => <div>
+    <h1>Functional Component</h1>
+    <Counter />
+</div>
+
+ReactDOM.render(<App />, document.getElementById('root'))
+...........................................................................................
+		   Task : Convert todo class Component app into functional component
+..........................................................................................
+
+
+
+
+
 
 
 
